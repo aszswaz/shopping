@@ -1,0 +1,8 @@
+server:
+  socketType:
+    - TCP
+    - UNIX
+  address: localhost
+  port: 8080
+  socketPath: /tmp/shopping.sock
+  static: static
