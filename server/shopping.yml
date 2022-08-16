@@ -6,4 +6,3 @@ server:
   port: 8080
   socketPath: shopping.sock
   static: static
-  home: static/index.html

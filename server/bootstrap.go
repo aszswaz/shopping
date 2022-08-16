@@ -7,6 +7,6 @@ import (
 
 func main() {
 	if err := web.Start(); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }

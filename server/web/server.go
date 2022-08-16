@@ -38,10 +38,10 @@ func Start() (err error) {
 		}
 	}
 	go signalExit()
+	defer exitHandler()
 	if err := g.Wait(); err != nil {
 		return err
 	}
-	exitHandler()
 	return nil
 }
 
@@ -88,10 +88,10 @@ func listenUNIX(router *gin.Engine) error {
 // routerManager: Registration function management for HTTP requests.
 func routerManager() *gin.Engine {
 	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "pong"})
-	})
+	router.NoRoute(html404)
 	router.GET("/", home)
+	router.GET("/404.html", html404)
+	router.GET("/ping", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"message": "pong"}) })
 	router.Static("/static", serverCfg.Static)
 	return router
 }
