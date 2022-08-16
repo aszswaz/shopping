@@ -21,6 +21,8 @@ type ServerConfig struct {
 	Port uint16 `yaml:"port"`
 	// static file directory
 	Static string `yaml:"static"`
+	// home page
+	Home string `yaml:"home"`
 }
 
 func (config *ServerConfig) getConfig() (err error) {
@@ -69,6 +71,11 @@ func (config *ServerConfig) correct() (err error) {
 			return err
 		}
 	}
+	if config.Home != "" {
+		if config.Home, err = filepath.Abs(config.Home); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -96,6 +103,9 @@ func (config *ServerConfig) setDefault() (err error) {
 	}
 	if config.Static == "" {
 		config.Static = path.Join(cwd, "static")
+	}
+	if config.Home == "" {
+		config.Home = path.Join(config.Static, "index.html")
 	}
 	return nil
 }

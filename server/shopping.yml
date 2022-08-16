@@ -4,5 +4,6 @@ server:
     - UNIX
   address: localhost
   port: 8080
-  socketPath: /tmp/shopping.sock
+  socketPath: shopping.sock
   static: static
+  home: static/index.html
