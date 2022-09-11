@@ -10,11 +10,11 @@ import (
 )
 
 func home(context *gin.Context) {
-	context.File(serverCfg.Home)
+	context.File(serverCfg.HomePage)
 }
 
 func html404(context *gin.Context) {
-	pagePath := path.Join(serverCfg.Static, "404.html")
+	pagePath := path.Join(serverCfg.Assets, "404.html")
 	page, err := os.ReadFile(pagePath)
 	if err != nil {
 		page = []byte("<!DOCTYPE html>" +

@@ -12,7 +12,7 @@ type Options struct {
 	ConfigFile string
 	Address    string
 	Port       uint16
-	Static     string
+	Assets     string
 }
 
 func GetOptions() *Options {
@@ -24,7 +24,7 @@ func GetOptions() *Options {
 	flag.StringVar(&optCache.ConfigFile, "c", "", "yml configuration file path. (default shopping.xml in the working directory)")
 	flag.StringVar(&optCache.Address, "a", "", "bind address. (default 127.0.0.1)")
 	port := flag.Uint("p", 0, "Bind tcp port. (default 8080)")
-	flag.StringVar(&optCache.Static, "s", "", "static file directory. (default static directory in the working directory.)")
+	flag.StringVar(&optCache.Assets, "s", "", "assets file directory. (default assets directory in the working directory.)")
 	flag.Parse()
 
 	optCache.Port = uint16(*port)

@@ -5,4 +5,5 @@ server:
   address: localhost
   port: 8080
   socketPath: shopping.sock
-  static: static
+  assets: assets
+  homePage: assets/index.html

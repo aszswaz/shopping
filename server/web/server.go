@@ -92,6 +92,6 @@ func routerManager() *gin.Engine {
 	router.GET("/", home)
 	router.GET("/404.html", html404)
 	router.GET("/ping", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"message": "pong"}) })
-	router.Static("/static", serverCfg.Static)
+	router.Static("/assets", serverCfg.Assets)
 	return router
 }

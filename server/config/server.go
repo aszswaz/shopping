@@ -19,10 +19,10 @@ type ServerConfig struct {
 	SocketPath string `yaml:"socketPath"`
 	// Bind tcp port
 	Port uint16 `yaml:"port"`
-	// static file directory
-	Static string `yaml:"static"`
-	// home page
-	Home string `yaml:"home"`
+	// assets file directory
+	Assets string `yaml:"assets"`
+	// HomePage
+	HomePage string `yaml:"homePage"`
 }
 
 func (config *ServerConfig) getConfig() (err error) {
@@ -34,8 +34,8 @@ func (config *ServerConfig) getConfig() (err error) {
 	if opt.Port != 0 {
 		config.Port = opt.Port
 	}
-	if opt.Static != "" {
-		config.Static = opt.Static
+	if opt.Address != "" {
+		config.Assets = opt.Assets
 	}
 
 	if err := config.correct(); err != nil {
@@ -66,13 +66,13 @@ func (config *ServerConfig) correct() (err error) {
 		}
 	}
 
-	if config.Static != "" {
-		if config.Static, err = filepath.Abs(config.Static); err != nil {
+	if config.Assets != "" {
+		if config.Address, err = filepath.Abs(config.Assets); err != nil {
 			return err
 		}
 	}
-	if config.Home != "" {
-		if config.Home, err = filepath.Abs(config.Home); err != nil {
+	if config.HomePage != "" {
+		if config.HomePage, err = filepath.Abs(config.HomePage); err != nil {
 			return err
 		}
 	}
@@ -101,11 +101,11 @@ func (config *ServerConfig) setDefault() (err error) {
 	if hasUnix && config.SocketPath == "" {
 		config.SocketPath = path.Join(cwd, "shopping.sock")
 	}
-	if config.Static == "" {
-		config.Static = path.Join(cwd, "static")
+	if config.Address == "" {
+		config.Address = path.Join(cwd, "assets")
 	}
-	if config.Home == "" {
-		config.Home = path.Join(config.Static, "index.html")
+	if config.HomePage == "" {
+		config.HomePage = path.Join(config.Assets, "index.html")
 	}
 	return nil
 }
