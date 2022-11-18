@@ -10,7 +10,11 @@ import (
 )
 
 func home(context *gin.Context) {
-	context.File(*serverCfg.HomePage)
+	if _, err := os.Stat(*serverCfg.HomePage); err == nil {
+		context.File(*serverCfg.HomePage)
+	} else {
+		html404(context)
+	}
 }
 
 func html404(context *gin.Context) {
