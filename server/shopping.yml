@@ -1,9 +1,11 @@
 server:
-  socketType:
-    - TCP
-    - UNIX
-  address: localhost
-  port: 8080
-  socketPath: shopping.sock
+  listens:
+    -
+      socketType: TCP
+      address: 127.0.0.1
+      port: 8080
+    -
+      socketType: UNIX
+      address: shopping.sock
   assets: assets
   homePage: assets/index.html

@@ -29,12 +29,14 @@ func init() {
 
 func Start() (err error) {
 	router := routerManager()
-	for _, sockType := range serverCfg.SocketType {
-		switch sockType {
+	for _, item := range serverCfg.Listens {
+		// 创建一个局部变量，用于协程的入口函数
+		listen := item
+		switch *item.SocketType {
 		case "TCP":
-			g.Go(func() error { return listenTCP(router) })
+			g.Go(func() error { return listenTCP(listen, router) })
 		case "UNIX":
-			g.Go(func() error { return listenUNIX(router) })
+			g.Go(func() error { return listenUNIX(listen, router) })
 		}
 	}
 	go signalExit()
@@ -57,32 +59,35 @@ func signalExit() {
 func exitHandler() {
 	cfg, _ := config.GetConfig()
 	serverCfg := cfg.Server
-	if _, err := os.Stat(serverCfg.SocketPath); err == nil {
-		if err = os.Remove(serverCfg.SocketPath); err != nil {
-			//goland:noinspection GoUnhandledErrorResult
-			fmt.Fprintln(os.Stderr, err)
+	for _, item := range serverCfg.Listens {
+		if *item.SocketType == "UNIX" {
+			if _, err := os.Stat(*item.Address); err == nil {
+				if err = os.Remove(*item.Address); err != nil {
+					fmt.Fprintln(os.Stderr, err)
+				}
+			}
 		}
 	}
 	os.Exit(0)
 }
 
 // listenTCP: listen http port
-func listenTCP(router *gin.Engine) error {
+func listenTCP(listen *config.ListenConfig, router *gin.Engine) error {
 	var host string
-	if strings.Contains(serverCfg.Address, ":") {
-		host = "[" + serverCfg.Address + "]" + ":" + strconv.FormatUint(uint64(serverCfg.Port), 10)
+	if strings.Contains(*listen.Address, ":") {
+		host = "[" + *listen.Address + "]" + ":" + strconv.FormatUint(uint64(*listen.Port), 10)
 	} else {
-		host = serverCfg.Address + ":" + strconv.FormatUint(uint64(serverCfg.Port), 10)
+		host = *listen.Address + ":" + strconv.FormatUint(uint64(*listen.Port), 10)
 	}
 	return router.Run(host)
 }
 
 // listenUNIX: listen unix domain socket
-func listenUNIX(router *gin.Engine) error {
-	if err := os.Remove(serverCfg.SocketPath); err != nil && !os.IsNotExist(err) {
+func listenUNIX(listen *config.ListenConfig, router *gin.Engine) error {
+	if err := os.Remove(*listen.Address); err != nil && !os.IsNotExist(err) {
 		return err
 	}
-	return router.RunUnix(serverCfg.SocketPath)
+	return router.RunUnix(*listen.Address)
 }
 
 // routerManager: Registration function management for HTTP requests.
@@ -92,6 +97,6 @@ func routerManager() *gin.Engine {
 	router.GET("/", home)
 	router.GET("/404.html", html404)
 	router.GET("/ping", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"message": "pong"}) })
-	router.Static("/assets", serverCfg.Assets)
+	router.Static("/assets", *serverCfg.Assets)
 	return router
 }

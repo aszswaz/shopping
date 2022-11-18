@@ -8,6 +8,7 @@ import (
 var config *Config
 
 type Config struct {
+	// 服务器配置
 	Server *ServerConfig `yaml:"server"`
 }
 
@@ -16,14 +17,19 @@ func GetConfig() (*Config, error) {
 		return config, nil
 	}
 
+	var configFile string
+	var err error
+
 	config = new(Config)
 	server := new(ServerConfig)
 	config.Server = server
-	opt := GetOptions()
+	if configFile, err = GetConfigFile(); err != nil {
+		return nil, err
+	}
 
 	// If the file exists,read the configuration from the file.
-	if _, err := os.Stat(opt.ConfigFile); err == nil {
-		cfb, err := os.ReadFile(opt.ConfigFile)
+	if _, err := os.Stat(configFile); err == nil {
+		cfb, err := os.ReadFile(configFile)
 		if err != nil {
 			return nil, err
 		}

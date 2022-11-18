@@ -4,38 +4,30 @@ import (
 	"flag"
 	"os"
 	"path"
+	"path/filepath"
 )
 
-var optCache *Options
+var configFile string
 
-type Options struct {
-	ConfigFile string
-	Address    string
-	Port       uint16
-	Assets     string
-}
+func GetConfigFile() (string, error) {
+	var err error
 
-func GetOptions() *Options {
-	if optCache != nil {
-		return optCache
+	if configFile != "" {
+		return configFile, nil
 	}
 
-	optCache = new(Options)
-	flag.StringVar(&optCache.ConfigFile, "c", "", "yml configuration file path. (default shopping.xml in the working directory)")
-	flag.StringVar(&optCache.Address, "a", "", "bind address. (default 127.0.0.1)")
-	port := flag.Uint("p", 0, "Bind tcp port. (default 8080)")
-	flag.StringVar(&optCache.Assets, "s", "", "assets file directory. (default assets directory in the working directory.)")
+	flag.StringVar(&configFile, "c", "", "yml configuration file path. (default shopping.xml in the working directory)")
 	flag.Parse()
 
-	optCache.Port = uint16(*port)
-	optCache.setDefault()
-	return optCache
-}
-
-func (opt *Options) setDefault() {
-	if opt.ConfigFile == "" {
+	if configFile == "" {
 		if cwd, err := os.Getwd(); err == nil {
-			opt.ConfigFile = path.Join(cwd, "shopping.yml")
+			configFile = path.Join(cwd, "shopping.yml")
+		}
+	} else {
+		if configFile, err = filepath.Abs(configFile); err != nil {
+			return configFile, err
 		}
 	}
+
+	return configFile, nil
 }
