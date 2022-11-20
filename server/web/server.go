@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"giea.aszswaz.cn/aszswaz/shopping/config"
 	"giea.aszswaz.cn/aszswaz/shopping/hooks"
 	"giea.aszswaz.cn/aszswaz/shopping/web/controller"
@@ -40,22 +39,22 @@ func Start() (err error) {
 			g.Go(func() error { return listenUNIX(listen, router) })
 		}
 	}
-	hooks.Register(exitHandler)
+	hooks.Register(ExitHandler)
 	if err := g.Wait(); err != nil {
 		return err
 	}
 	return nil
 }
 
-// exitHandler: When the program exits, clean up the occupied resources.
-func exitHandler() {
+// ExitHandler When the program exits, clean up the occupied resources.
+func ExitHandler() {
 	cfg, _ := config.GetConfig()
 	serverCfg := cfg.Server
 	for _, item := range serverCfg.Listens {
 		if *item.SocketType == "UNIX" {
 			if _, err := os.Stat(*item.Address); err == nil {
 				if err = os.Remove(*item.Address); err != nil {
-					fmt.Fprintln(os.Stderr, err)
+					log.Println(err)
 				}
 			}
 		}
