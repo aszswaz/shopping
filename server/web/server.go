@@ -3,15 +3,15 @@ package web
 import (
 	"fmt"
 	"giea.aszswaz.cn/aszswaz/shopping/config"
+	"giea.aszswaz.cn/aszswaz/shopping/hooks"
+	"giea.aszswaz.cn/aszswaz/shopping/web/controller"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
 	"strconv"
 	"strings"
-	"syscall"
 )
 
 var (
@@ -22,7 +22,8 @@ var (
 func init() {
 	configObj, err := config.GetConfig()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		hooks.ExitHandler(1)
 	}
 	serverCfg = configObj.Server
 }
@@ -39,20 +40,11 @@ func Start() (err error) {
 			g.Go(func() error { return listenUNIX(listen, router) })
 		}
 	}
-	go signalExit()
-	defer exitHandler()
+	hooks.Register(exitHandler)
 	if err := g.Wait(); err != nil {
 		return err
 	}
 	return nil
-}
-
-// signalExit: Exit signal processing.
-func signalExit() {
-	sigCha := make(chan os.Signal)
-	signal.Notify(sigCha, syscall.SIGINT, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGKILL)
-	<-sigCha
-	exitHandler()
 }
 
 // exitHandler: When the program exits, clean up the occupied resources.
@@ -68,7 +60,6 @@ func exitHandler() {
 			}
 		}
 	}
-	os.Exit(0)
 }
 
 // listenTCP: listen http port
@@ -90,13 +81,20 @@ func listenUNIX(listen *config.ListenConfig, router *gin.Engine) error {
 	return router.RunUnix(*listen.Address)
 }
 
-// routerManager: Registration function management for HTTP requests.
+// routerManager: 注册 URL 对应的处理函数
 func routerManager() *gin.Engine {
 	router := gin.Default()
-	router.NoRoute(html404)
-	router.GET("/", home)
-	router.GET("/404.html", html404)
+	router.NoRoute(controller.Html404)
+	router.GET("/", controller.Home)
+	router.GET("/404.html", controller.Html404)
 	router.GET("/ping", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"message": "pong"}) })
 	router.Static("/assets", *serverCfg.Assets)
+
+	user := router.Group("user")
+	// 用户的登陆和注册接口
+	user.POST("login", controller.Login)
+	user.POST("register", controller.Register)
+	// TODO: 获取用户信息的接口
+	// TODO: 获取商店信息的接口
 	return router
 }

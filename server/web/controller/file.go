@@ -1,4 +1,4 @@
-package web
+package controller
 
 import (
 	"github.com/gin-gonic/gin"
@@ -9,15 +9,15 @@ import (
 	"strconv"
 )
 
-func home(context *gin.Context) {
+func Home(context *gin.Context) {
 	if _, err := os.Stat(*serverCfg.HomePage); err == nil {
 		context.File(*serverCfg.HomePage)
 	} else {
-		html404(context)
+		Html404(context)
 	}
 }
 
-func html404(context *gin.Context) {
+func Html404(context *gin.Context) {
 	pagePath := path.Join(*serverCfg.Assets, "404.html")
 	page, err := os.ReadFile(pagePath)
 	if err != nil {

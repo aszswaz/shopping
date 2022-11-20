@@ -10,6 +10,8 @@ var config *Config
 type Config struct {
 	// 服务器配置
 	Server *ServerConfig `yaml:"server"`
+	// 数据库配置
+	Database *DatabaseConfig `yaml:"database"`
 }
 
 func GetConfig() (*Config, error) {
@@ -21,8 +23,6 @@ func GetConfig() (*Config, error) {
 	var err error
 
 	config = new(Config)
-	server := new(ServerConfig)
-	config.Server = server
 	if configFile, err = GetConfigFile(); err != nil {
 		return nil, err
 	}
@@ -38,8 +38,16 @@ func GetConfig() (*Config, error) {
 		}
 	}
 
-	if err := server.getConfig(); err != nil {
+	if config.Server == nil {
+		config.Server = new(ServerConfig)
+	}
+	if config.Database == nil {
+		config.Database = new(DatabaseConfig)
+	}
+
+	if err := config.Server.getConfig(); err != nil {
 		return nil, err
 	}
+	config.Database.setDefault()
 	return config, nil
 }

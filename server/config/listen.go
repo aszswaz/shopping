@@ -26,17 +26,21 @@ func (listen *ListenConfig) correct() (err error) {
 
 func (listen *ListenConfig) setDefault() {
 	if listen.SocketType == nil {
+		listen.SocketType = new(string)
 		*listen.SocketType = "TCP"
 	}
 	if *listen.SocketType == "TCP" {
 		if listen.Address == nil {
+			listen.Address = new(string)
 			*listen.Address = "127.0.0.1"
 		}
 		if listen.Port == nil {
+			listen.Port = new(uint16)
 			*listen.Port = 8080
 		}
 	}
 	if *listen.SocketType == "UNIX" && listen.Address == nil {
+		listen.Address = new(string)
 		*listen.Address, _ = filepath.Abs("shopping.sock")
 	}
 }

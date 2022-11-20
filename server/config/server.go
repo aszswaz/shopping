@@ -55,9 +55,11 @@ func (config *ServerConfig) setDefault() error {
 		item.setDefault()
 	}
 	if config.Assets == nil {
+		config.Assets = new(string)
 		*config.Assets, _ = filepath.Abs("assets")
 	}
 	if config.HomePage == nil {
+		config.HomePage = new(string)
 		*config.HomePage = path.Join(*config.Assets, "index.html")
 	}
 	return nil
